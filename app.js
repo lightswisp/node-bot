@@ -10,7 +10,7 @@ let user_id = ""
 let video_url = "https://www.youtube.com/watch?v=60foJDqztBg"
 let channelInstance
 let connectionInstance
-let connected
+let connected = false
 let stop = false
 
 client.on('ready', () => {
@@ -19,7 +19,7 @@ client.on('ready', () => {
 
 client.on("voiceStateUpdate", async (oldVoice, newVoice) => {
 if(!stop){
-    if(newVoice.id == user_id && newVoice.channelID){
+    if(newVoice.id == user_id && newVoice.channelID && !connected){
         connect(newVoice).then(()=>{
             play()
         })
