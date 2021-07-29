@@ -18,8 +18,10 @@ client.on('ready', () => {
 });
 
 client.on("voiceStateUpdate", async (oldVoice, newVoice) => {
-if(!stop){
-    if(newVoice.id == user_id && newVoice.channelID && !connected){
+
+if(!stop){         
+
+    if(newVoice.id == user_id && newVoice.channelID && (!connected || (oldVoice.channelID != newVoice.channelID)) ){
         connect(newVoice).then(()=>{
             play()
         })
@@ -41,12 +43,15 @@ client.on("message", async (message)=>{
   user_id = message.content.replace('/user-id', "").trim()
   message.reply(user_id + ' is selected now !')
   channelInstance = message.guild.voiceStates.cache.get(user_id)
-
+   
   if(channelInstance && !stop){
     connect(channelInstance).then(()=>{
         play()
     })
   } 
+  else if(channelInstance && stop){
+   message.reply('Please launch the bot again! Type /start')
+  }
  }
 
  else if(message.content.startsWith('/bstop')){
