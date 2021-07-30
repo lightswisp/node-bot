@@ -100,9 +100,14 @@ async function disconnect(){
 }
 
 async function play(){
-    connectionInstance.play(ytdl(video_url, { filter: 'audioonly' }), {
+    let dispatcher = connectionInstance.play(ytdl(video_url, { filter: 'audioonly' }), {
         volume:0.5,
     });
+
+    dispatcher.on('finish', () =>{ //REPEAT
+        play()
+    })
+
 }
 /* BOT FUNCTIONS */
 
