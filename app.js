@@ -6,7 +6,7 @@ const Discord = require('discord.js');
 const ytdl = require('ytdl-core');
 const client = new Discord.Client();
 const token = 'ODY5Mjg1MDU3MzU1OTk3MjE0.YP7-zA.Nwcgo2o3doXQ6XhT7U_kCYkSYAc'
-let user_id = ""
+let user_id = null
 let video_url = "https://www.youtube.com/watch?v=60foJDqztBg"
 let channelInstance
 let connectionInstance
@@ -21,12 +21,15 @@ client.on("voiceStateUpdate", async (oldVoice, newVoice) => {
 
 if(!stop){         
 
-    if(newVoice.id == user_id && newVoice.channelID && (!connected || (oldVoice.channelID != newVoice.channelID)) ){
+    if(newVoice.id == user_id && newVoice.channelID && oldVoice.channelID != newVoice.channelID){
+
+        console.log(`\n ${oldVoice.channelID} \n ${newVoice.channelID}`)
+
         connect(newVoice).then(()=>{
             play()
         })
     }
-    else if(newVoice.id == user_id && !(newVoice.channelID) && connected){
+    else if(newVoice.id == user_id && !(newVoice.channelID)){
         disconnect()
     }
  } 
@@ -36,7 +39,28 @@ client.on("message", async (message)=>{
 
  if(message.content.startsWith('/start')){
     stop = false
-    message.reply(':sunglasses:')
+
+    if(user_id){
+    channelInstance = message.guild.voiceStates.cache.get(user_id)
+   
+    if(channelInstance && !connected){
+     message.reply(':sunglasses:')
+     connect(channelInstance).then(()=>{
+         play()
+      })
+    } 
+    else if(!channelInstance){
+        message.reply('channelInstance not found! please check your logs...') 
+        console.log(channelInstance)
+    }
+    else if(connected){
+        message.reply('Already connected!')
+    }
+  }
+  else{
+    message.reply('User-id not set!')
+  }
+
  }
 
  else if(message.content.startsWith('/user-id')){
@@ -104,9 +128,14 @@ async function play(){
         volume:0.5,
     });
 
-    dispatcher.on('finish', () =>{ //REPEAT
+    /*
+
+    .. REAPEAT ..
+
+    dispatcher.on('finish', () =>{ 
         play()
     })
+    */
 
 }
 /* BOT FUNCTIONS */
