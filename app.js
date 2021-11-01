@@ -5,7 +5,7 @@ const Discord      = require('discord.js');
 const ytdl         = require('ytdl-core');
 const fetch        = require('node-fetch');
 const client       = new Discord.Client();
-const bot_token    = "ODY5Mjg1MDU3MzU1OTk3MjE0.YP7-zA.qt3eJusVv5qdw73A2SafXakpcfo"
+const bot_token    = process.env['bot_token']
 let servers        = []
 let bitrate        = 384000 * 4  //common for all servers
 
