@@ -1,6 +1,3 @@
-
-
-//Bot \/
 const Discord      = require('discord.js');
 const ytdl         = require('ytdl-core');
 const fetch        = require('node-fetch');
@@ -23,9 +20,9 @@ client.on('message', async (message)=>{
         if(message.client.voice.connections.get(message.guild.id) && message.client.voice.connections.get(message.guild.id).channel.id == message.guild.voiceStates.cache.get(message.author.id).channelID){
           console.log('we are in the same channel')
           get_link(link, message.guild.id).then(()=>{
-            message.channel.send("Track(s) are/is added")
+             message.channel.send("Track(s) are/is added")
              message.channel.send("[ * INFO * ] This bot is currently in beta build, some bugs may appear! New features were added: multiple server audio playback and new commands -> [-pause, -resume]")
-            message.channel.send({files:[servers[message.guild.id].track_image]})
+             message.channel.send({files:[servers[message.guild.id].track_image]})
             if(servers[message.guild.id].queue_done){
               console.log("Play")
               play(message.guild.id)         
@@ -34,7 +31,7 @@ client.on('message', async (message)=>{
         }
         else{
          console.log('different channels')
-         connect(message.guild.voiceStates.cache.get(message.author.id)).then(()=>{
+         connect(message.guild.voiceStates.cache.get(message.author.id), message.channel.id).then(()=>{
           get_link(link, message.guild.id).then(()=>{
             message.channel.send("Track(s) are/is added")
             message.channel.send("[ * INFO * ] This bot is currently in beta build, some bugs may appear! New features were added: multiple server audio playback and new commands -> [-pause, -resume]")
@@ -173,7 +170,7 @@ return new Promise(async resolve => {
  }) 
 }
 
-async function connect(Channel){
+async function connect(Channel, messageChannel){
 
         console.log('Connecting...')
         servers[Channel.channel.guild.id] = {
@@ -183,7 +180,9 @@ async function connect(Channel){
           dispatcher: null,
           queue_done: false,
           bitrate: bitrate,
-          track_image: null
+          track_image: null,
+          timeout: null,
+          messageChannel: messageChannel
         }
         servers[Channel.channel.guild.id].connectionInstance = await Channel.channel.join()  
         console.log("connected to :" + Channel.channel.guild.id)
@@ -195,7 +194,9 @@ async function disconnect(Channel){
 }
 
 function play(serverID){
-
+  if(servers[serverID].timeout != null){
+    clearTimeout(servers[serverID].timeout)
+  }
   servers[serverID].queue_done = false; 
   console.log("[*] Queue: " + servers[serverID].queue)
   console.log("[*] Current track to play: " + servers[serverID].queue[0])
@@ -212,6 +213,10 @@ function play(serverID){
         }
         else { 
           servers[serverID].queue_done = true 
+          servers[serverID].timeout = setTimeout(()=>{
+            servers[serverID].connectionInstance.channel.leave()
+            client.channels.cache.get(servers[serverID].messageChannel).send("Leaving because of inactivity within 5 minutes!")
+          }, (5 * 1000 * 60))
         }
       })
     }
