@@ -197,6 +197,7 @@ async function connect(Channel, messageChannel){
 async function disconnect(Channel){
     console.log('Leaving...') 
     await Channel.channel.leave()
+    //We need to clear timeout here
 }
 
 function play(serverID){
