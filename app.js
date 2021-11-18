@@ -1,3 +1,4 @@
+//Bot \/
 const Discord      = require('discord.js');
 const ytdl         = require('ytdl-core');
 const fetch        = require('node-fetch');
@@ -113,24 +114,29 @@ async function get_track_image(track, serverID){
 async function get_tracks_from_playlist(playlist, serverID){
   console.log("-> "+playlist)
   let list = new Set()
-  let response = await fetch("https://www.youtube.com/playlist?"+playlist.match(/list=[a-zA-Z0-9-_]*/))
-  let body = await response.text()
-  body.match(/\/watch\?v=[a-zA-Z0-9-_]*/g).forEach(el=>{
-   list.add("https://www.youtube.com"+el)
-  })
-  servers[serverID].track_image = body.match(/https:\/\/i\.ytimg\.com\/vi\/[a-zA-Z0-9-_]*\/hqdefault\.jpg/)[0]
+  try{
+    let response = await fetch("https://www.youtube.com/playlist?"+playlist.match(/list=[a-zA-Z0-9-_]*/))
+    let body = await response.text()
+    servers[serverID].track_image = body.match(/https:\/\/i\.ytimg\.com\/vi\/[a-zA-Z0-9-_]*\/hqdefault\.jpg/)[0]
+    body.match(/\/watch\?v=[a-zA-Z0-9-_]*/g).forEach(el=>{
+    list.add("https://www.youtube.com"+el)
+    })
+   }catch(e){
+     // Possibly not a playlist
+    await get_track_image("https://www.youtube.com"+playlist.match(/\/watch\?v=[a-zA-Z0-9-_]*/), serverID)
+    return ["https://www.youtube.com"+playlist.match(/\/watch\?v=[a-zA-Z0-9-_]*/)]   
+   } 
   return list
 }
 
 async function get_link(query, serverID){
   console.log("Get link for :" + serverID)
-return new Promise(async resolve => {
+  return new Promise(async resolve => {
     console.log(query)
     let link = null
     if(/http:\/\/|https:\/\//.test(query)){
 
      if(/[?&]list=/.test(query)){
-
        get_tracks_from_playlist(query, serverID).then((tracks)=>{
          tracks.forEach((track)=>{
           servers[serverID].queue.push(track)
