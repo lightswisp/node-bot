@@ -193,7 +193,8 @@ async function connect(Channel, messageChannel){
         servers[Channel.channel.guild.id].connectionInstance = await Channel.channel.join()  
         console.log("connected to :" + Channel.channel.guild.id)
       }.catch(e){
-	client.channels.cache.get(messageChannel).send(e)      
+	console.log(e)
+	client.channels.cache.get(messageChannel).send(e)   
       }
 }
 
