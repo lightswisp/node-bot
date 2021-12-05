@@ -177,7 +177,7 @@ async function get_link(query, serverID){
 }
 
 async function connect(Channel, messageChannel){
-      try{
+      
         console.log('Connecting...')
         servers[Channel.channel.guild.id] = {
           connectionInstance: null,
@@ -189,7 +189,7 @@ async function connect(Channel, messageChannel){
           track_image: null,
           timeout: null,
           messageChannel: messageChannel
-        }
+      try{
         servers[Channel.channel.guild.id].connectionInstance = await Channel.channel.join()  
         console.log("connected to :" + Channel.channel.guild.id)
       }catch(e){
